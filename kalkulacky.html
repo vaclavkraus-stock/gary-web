@@ -131,6 +131,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
 .disclaimer-btn:hover{background:var(--gold)}
 .disclaimer-close{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);transition:color .2s;line-height:1}
 .disclaimer-close:hover{color:var(--ink)}
+
+/* CHART EXPLANATIONS */
+.chart-explain{margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--line-light);display:flex;flex-direction:column;gap:.6rem}
+.ce-item{display:flex;align-items:flex-start;gap:.8rem;font-size:.84rem;color:var(--muted);line-height:1.5}
+.ce-item strong{color:var(--ink);font-weight:500}
+.ce-dot{width:14px;height:14px;border-radius:2px;flex-shrink:0;margin-top:2px}
+.ce-tip{font-size:.9rem;flex-shrink:0;margin-top:1px}
 </style>
 </head>
 <body>
@@ -255,6 +262,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
       <div class="chart-wrap">
         <div class="chart-title">Vývoj kupní síly v čase</div>
         <canvas id="chart-inflace"></canvas>
+      <div class="chart-explain">
+      <div class="ce-item"><span class="ce-dot" style="background:#9A7B35"></span><span><strong>Reálná kupní síla</strong> — co si za tuto částku skutečně koupíte v daném roce</span></div>
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(107,95,74,0.4);border:1px dashed rgba(107,95,74,0.6)"></span><span><strong>Nominální hodnota</strong> — původní částka bez zohlednění inflace</span></div>
+    </div>
       </div>
     </div>
 
@@ -309,6 +320,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
       <div class="chart-wrap">
         <div class="chart-title">Rozložení jistiny a úroků v čase</div>
         <canvas id="chart-hypoteka"></canvas>
+      <div class="chart-explain">
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(27,42,30,0.75)"></span><span><strong>Úmor jistiny</strong> — část splátky snižující váš dluh</span></div>
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(154,123,53,0.6)"></span><span><strong>Úroky</strong> — část splátky jdoucí bance. V prvních letech tvoří většinu splátky</span></div>
+    </div>
       </div>
     </div>
 
@@ -370,6 +385,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
       <div class="chart-wrap">
         <div class="chart-title">Klesající zůstatek úvěru</div>
         <canvas id="chart-jistina"></canvas>
+      <div class="chart-explain">
+      <div class="ce-item"><span class="ce-dot" style="background:#9A7B35"></span><span><strong>Zbývající dluh</strong> — kolik ještě dlužíte bance v daném roce</span></div>
+      <div class="ce-item"><span class="ce-tip">💡</span><span>Plocha pod křivkou znázorňuje celkový objem úroků zaplacených za dobu splácení</span></div>
+    </div>
       </div>
     </div>
 
@@ -431,6 +450,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
       <div class="chart-wrap">
         <div class="chart-title">Růst portfolia — vloženo vs výnos</div>
         <canvas id="chart-investice"></canvas>
+      <div class="chart-explain">
+      <div class="ce-item"><span class="ce-dot" style="background:#9A7B35"></span><span><strong>Celková hodnota portfolia</strong> — váš majetek včetně složeného úročení</span></div>
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(27,42,30,0.6)"></span><span><strong>Vloženo</strong> — suma všech vašich vkladů bez výnosů</span></div>
+      <div class="ce-item"><span class="ce-tip">💡</span><span>Rozdíl mezi křivkami je čistý výnos ze složeného úročení — čím delší horizont, tím větší efekt</span></div>
+    </div>
       </div>
     </div>
 
@@ -514,6 +538,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
       <div class="chart-wrap">
         <div class="chart-title">Srovnání čistého jmění v čase</div>
         <canvas id="chart-hvi"></canvas>
+      <div class="chart-explain">
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(27,42,30,0.8)"></span><span><strong>Vlastní bydlení</strong> — vaše čisté jmění (hodnota nemovitosti minus zbývající dluh)</span></div>
+      <div class="ce-item"><span class="ce-dot" style="background:#9A7B35"></span><span><strong>Investice + nájem</strong> — hodnota portfolia při investování zálohy a měsíčního rozdílu</span></div>
+      <div class="ce-item"><span class="ce-tip">💡</span><span>Výsledek závisí hlavně na růstu nemovitostí vs. výnosu investic — zkuste různé kombinace</span></div>
+    </div>
       </div>
     </div>
 
@@ -582,6 +611,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
       <div class="chart-wrap">
         <div class="chart-title">Equity vs zbývající dluh v čase</div>
         <canvas id="chart-bohatstvi"></canvas>
+      <div class="chart-explain">
+      <div class="ce-item"><span class="ce-dot" style="background:#9A7B35"></span><span><strong>Vaše equity</strong> — skutečný podíl nemovitosti, který vlastníte (hodnota minus dluh)</span></div>
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(192,57,43,0.6)"></span><span><strong>Zbývající dluh</strong> — část nemovitosti patřící stále bance</span></div>
+      <div class="ce-item"><span class="ce-tip">💡</span><span>Hypotéka funguje jako finanční páka — malá záloha ovládá celou hodnotu nemovitosti</span></div>
+    </div>
       </div>
     </div>
 
@@ -657,6 +691,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
       <div class="chart-wrap">
         <div class="chart-title">Kumulativní cashflow v čase (10 let)</div>
         <canvas id="chart-innem"></canvas>
+      <div class="chart-explain">
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(27,42,30,0.7)"></span><span><strong>Kladný cashflow</strong> — měsíce kdy nájem pokrývá splátku i náklady</span></div>
+      <div class="ce-item"><span class="ce-dot" style="background:rgba(192,57,43,0.6)"></span><span><strong>Záporný cashflow</strong> — nájem nestačí na splátku, doplácíte z vlastních zdrojů</span></div>
+      <div class="ce-item"><span class="ce-tip">💡</span><span>Kumulativní součet: překročení nuly = nemovitost se z nájmu zaplatila</span></div>
+    </div>
       </div>
     </div>
 
@@ -1029,7 +1068,33 @@ function closeDisclaimer(){
   setTimeout(()=>el.style.display='none',400);
   try{sessionStorage.setItem('disc_accepted','1')}catch(e){}
 }
-try{if(sessionStorage.getItem('disc_accepted')==='1')document.getElementById('disclaimerOverlay').style.display='none'}catch(e){}
+
+// Hide disclaimer on load, show on first interaction
+const discOverlay = document.getElementById('disclaimerOverlay');
+discOverlay.style.display = 'none';
+let discShown = false;
+
+function maybeShowDisclaimer() {
+  if (discShown) return;
+  try { if (sessionStorage.getItem('disc_accepted') === '1') return; } catch(e) {}
+  discShown = true;
+  discOverlay.style.display = 'flex';
+  discOverlay.style.opacity = '0';
+  discOverlay.style.transition = 'opacity .4s';
+  setTimeout(() => discOverlay.style.opacity = '1', 10);
+}
+
+// Trigger on any slider input
+document.querySelectorAll('input[type=range]').forEach(el => {
+  el.addEventListener('mousedown', maybeShowDisclaimer, {once: false});
+  el.addEventListener('touchstart', maybeShowDisclaimer, {once: false});
+});
+
+// Trigger on sidebar button click
+document.querySelectorAll('.sidebar-btn').forEach(el => {
+  el.addEventListener('click', maybeShowDisclaimer, {once: false});
+});
+
 </script>
 </body>
 </html>
