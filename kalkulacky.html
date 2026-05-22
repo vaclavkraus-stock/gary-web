@@ -108,29 +108,44 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
 /* RESPONSIVE */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
-  .sidebar{position:fixed;left:-280px;top:60px;height:calc(100vh - 60px);z-index:150;transition:left .3s;width:260px}
+  .sidebar{position:fixed;left:-290px;top:60px;height:calc(100vh - 60px);z-index:150;transition:left .3s cubic-bezier(.4,0,.2,1);width:270px;box-shadow:4px 0 20px rgba(0,0,0,.15)}
   .sidebar.open{left:0}
-  .main{padding:2rem 1.4rem}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(15,14,9,.5);z-index:149;top:60px}
+  .sidebar.open~.sidebar-overlay,.sidebar-overlay.open{display:block}
+  .main{padding:2rem 1.2rem}
   .calc-grid{grid-template-columns:1fr}
   .inputs-row{grid-template-columns:1fr}
   .inputs-row .field{border-right:none;padding-right:0}
   .mobile-menu-btn{display:flex}
+  .result-grid-2{grid-template-columns:1fr 1fr}
+  .calc-title{font-size:1.6rem}
+  .chart-wrap{padding:1.2rem}
+  .ce-item{font-size:.8rem}
+  .field-value{font-size:1rem;min-width:4rem}
+  .result-card-val{font-size:1.8rem}
+}
+@media(max-width:480px){
+  .result-grid-2{grid-template-columns:1fr}
+  .calc-title{font-size:1.4rem}
+  .result-card-val{font-size:1.6rem}
+  .sidebar{width:85vw}
+  .disclaimer-modal{padding:1.8rem 1.2rem}
 }
 .mobile-menu-btn{display:none;align-items:center;gap:.6rem;background:var(--forest);border:none;color:var(--parchment);font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;padding:.5rem 1rem;cursor:pointer;margin-bottom:1.5rem;font-weight:300}
 
 /* DISCLAIMER MODAL */
-.disclaimer-overlay{position:fixed;inset:0;background:rgba(15,14,9,.75);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem}
-.disclaimer-modal{background:var(--parchment);max-width:580px;width:100%;padding:3rem;position:relative;border-top:3px solid var(--gold)}
-.disclaimer-modal h2{font-family:var(--serif);font-size:1.6rem;font-weight:400;color:var(--ink);margin-bottom:.3rem}
-.disclaimer-modal .disc-sub{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:2rem;display:block}
-.disclaimer-modal h3{font-family:var(--sans);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);font-weight:600;margin:1.2rem 0 .5rem}
+.disclaimer-overlay{position:fixed;inset:0;background:rgba(15,14,9,.78);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
+.disclaimer-modal{background:var(--parchment);max-width:580px;width:100%;padding:2.5rem 2rem;position:relative;border-top:3px solid var(--gold);max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.disclaimer-modal h2{font-family:var(--serif);font-size:1.5rem;font-weight:400;color:var(--ink);margin-bottom:.3rem;padding-right:2.5rem}
+.disclaimer-modal .disc-sub{font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:1.5rem;display:block}
+.disclaimer-modal h3{font-family:var(--sans);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);font-weight:600;margin:1.2rem 0 .5rem}
 .disclaimer-modal p{font-size:.9rem;color:var(--muted);line-height:1.85;margin-bottom:.8rem}
-.disclaimer-warning{background:var(--forest);border-left:3px solid var(--gold);padding:1rem 1.2rem;margin:1.5rem 0}
-.disclaimer-warning p{color:rgba(246,240,228,.75);font-size:.88rem;margin:0;font-style:italic}
-.disclaimer-btn{width:100%;padding:1rem;background:var(--forest);color:var(--parchment);font-family:var(--sans);font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;margin-top:.5rem;transition:background .2s;font-weight:500}
-.disclaimer-btn:hover{background:var(--gold)}
-.disclaimer-close{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);transition:color .2s;line-height:1}
-.disclaimer-close:hover{color:var(--ink)}
+.disclaimer-warning{background:var(--forest);border-left:3px solid var(--gold);padding:1rem 1.2rem;margin:1.2rem 0}
+.disclaimer-warning p{color:rgba(246,240,228,.78);font-size:.86rem;margin:0;font-style:italic}
+.disclaimer-btn{width:100%;padding:1.1rem;background:var(--forest);color:var(--parchment);font-family:var(--sans);font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;border:none;cursor:pointer;margin-top:.8rem;transition:background .2s;font-weight:500;-webkit-tap-highlight-color:transparent}
+.disclaimer-btn:hover,.disclaimer-btn:active{background:var(--gold)}
+.disclaimer-close{position:absolute;top:.8rem;right:.8rem;width:36px;height:36px;background:var(--parchment-3);border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;color:var(--muted);transition:all .2s;-webkit-tap-highlight-color:transparent}
+.disclaimer-close:hover,.disclaimer-close:active{background:var(--forest);color:var(--parchment);border-color:var(--forest)}
 
 /* CHART EXPLANATIONS */
 .chart-explain{margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--line-light);display:flex;flex-direction:column;gap:.6rem}
@@ -209,7 +224,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
 
   <!-- MAIN -->
   <main class="main">
-    <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰ Vybrat kalkulačku</button>
+    <button class="mobile-menu-btn" id="sidebarToggle" onclick="toggleSidebar()">☰ Vybrat kalkulačku</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <!-- 1. INFLACE -->
     <div class="calc-panel active" id="calc-inflace">
@@ -718,13 +734,24 @@ Chart.defaults.font=chartDefaults.font;
 let charts={};
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
 
+
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebarOverlay');
+  s.classList.toggle('open');
+  o.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
 // SHOW CALC
 function showCalc(id){
   document.querySelectorAll('.calc-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('calc-'+id).classList.add('active');
   event.currentTarget.classList.add('active');
-  document.getElementById('sidebar').classList.remove('open');
+  closeSidebar();
   // trigger update
   const fns={inflace:updateInflace,hypoteka:updateHypoteka,jistina:updateJistina,investice:updateInvestice,'hyp-vs-inv':updateHypVsInv,bohatstvi:updateBohatstvi,'inv-nemovitost':updateInvNem};
   if(fns[id])setTimeout(fns[id],50);
