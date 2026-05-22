@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finanční kalkulačky – Ing. Gary Nguyen</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=EB+Garamond:ital,wght@0,400;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0F0E09;--forest:#1B2A1E;--forest-2:#243628;
+  --gold:#9A7B35;--gold-2:#C4A05A;--gold-pale:#E2CAA0;
+  --parchment:#F6F0E4;--parchment-2:#EDE5D4;--parchment-3:#E2D8C8;
+  --muted:#6B5F4A;--line:#C8BAA0;--line-light:#DDD5C4;
+  --red:#C0392B;
+  --serif:'Playfair Display',Georgia,serif;
+  --garamond:'EB Garamond',Georgia,serif;
+  --sans:'Jost',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--parchment);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.6;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;display:flex;justify-content:space-between;align-items:center;background:rgba(246,240,228,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.nav-logo{font-family:var(--serif);font-size:1rem;font-weight:400;letter-spacing:.06em;color:var(--forest);text-decoration:none}
+.nav-logo span{color:var(--gold)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:var(--sans);font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;font-weight:300}
+.nav-links a:hover,.nav-links a.active{color:var(--forest)}
+.nav-cta{font-family:var(--sans);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--parchment);background:var(--forest);padding:.48rem 1.4rem;text-decoration:none;transition:background .25s;font-weight:300}
+.nav-cta:hover{background:var(--gold)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh;padding-top:60px}
+
+/* SIDEBAR */
+.sidebar{background:var(--forest);border-right:1px solid rgba(255,255,255,.06);position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;padding:2.5rem 0}
+.sidebar-head{padding:0 1.8rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.sidebar-title{font-family:var(--sans);font-size:.55rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(246,240,228,.3);font-weight:300}
+.sidebar-sub{font-family:var(--serif);font-size:1rem;font-weight:400;color:var(--parchment);margin-top:.3rem}
+.sidebar-list{list-style:none;padding:1rem 0}
+.sidebar-item{border-bottom:1px solid rgba(255,255,255,.04)}
+.sidebar-btn{width:100%;text-align:left;padding:1.1rem 1.8rem;background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:1rem;transition:background .2s;color:inherit}
+.sidebar-btn:hover{background:rgba(255,255,255,.05)}
+.sidebar-btn.active{background:rgba(154,123,53,.15);border-left:2px solid var(--gold)}
+.sidebar-icon{width:32px;height:32px;border:1px solid rgba(196,160,90,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;transition:border-color .2s}
+.sidebar-btn.active .sidebar-icon{border-color:var(--gold)}
+.sidebar-label{display:flex;flex-direction:column;gap:.15rem}
+.sidebar-name{font-family:var(--sans);font-size:.78rem;letter-spacing:.04em;color:rgba(246,240,228,.85);font-weight:300}
+.sidebar-desc{font-family:var(--sans);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(246,240,228,.32);font-weight:300}
+
+/* MAIN CONTENT */
+.main{padding:3rem 3.5rem;background:var(--parchment)}
+.calc-header{margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--line)}
+.calc-eyebrow{font-family:var(--sans);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem;font-weight:300;display:flex;align-items:center;gap:.6rem}
+.calc-eyebrow::before{content:'';width:1.2rem;height:1px;background:var(--gold)}
+.calc-title{font-family:var(--serif);font-size:2.2rem;font-weight:400;color:var(--ink);line-height:1.1}
+.calc-desc{font-family:var(--garamond);font-size:.97rem;color:var(--muted);margin-top:.6rem;font-style:italic}
+
+/* CALCULATOR PANELS */
+.calc-panel{display:none}
+.calc-panel.active{display:block}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.inputs-col{display:flex;flex-direction:column;gap:0}
+.field{padding:1.2rem 0;border-bottom:1px solid var(--line-light)}
+.field:last-child{border-bottom:none}
+.field label{font-family:var(--sans);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.6rem;font-weight:300}
+.field-row{display:flex;align-items:center;gap:.5rem}
+.field input[type=range]{flex:1;-webkit-appearance:none;height:1px;background:var(--line);outline:none;cursor:pointer}
+.field input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--gold);border-radius:50%;cursor:pointer;transition:transform .15s}
+.field input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25)}
+.field-value{font-family:var(--serif);font-size:1.1rem;font-weight:400;color:var(--forest);min-width:5rem;text-align:right}
+.results-col{position:sticky;top:80px}
+.result-card{background:var(--forest);padding:2rem;margin-bottom:1.2rem}
+.result-card-label{font-family:var(--sans);font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(246,240,228,.35);margin-bottom:.4rem;font-weight:300}
+.result-card-val{font-family:var(--serif);font-size:2.2rem;font-weight:400;color:var(--gold-pale);line-height:1}
+.result-card-sub{font-family:var(--garamond);font-size:.85rem;color:rgba(246,240,228,.4);margin-top:.3rem;font-style:italic}
+.result-card.accent{background:var(--gold);padding:1.5rem 2rem}
+.result-card.accent .result-card-label{color:rgba(15,14,9,.5)}
+.result-card.accent .result-card-val{color:var(--ink)}
+.result-card.accent .result-card-sub{color:rgba(15,14,9,.5)}
+.result-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.2rem}
+.result-mini{background:var(--parchment-2);border:1px solid var(--line);padding:1.2rem 1.4rem}
+.result-mini-label{font-family:var(--sans);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;font-weight:300}
+.result-mini-val{font-family:var(--serif);font-size:1.3rem;font-weight:400;color:var(--forest)}
+.result-mini.neg .result-mini-val{color:var(--red)}
+
+/* CHART */
+.chart-wrap{margin-top:2.5rem;padding:2rem;background:var(--parchment-2);border:1px solid var(--line)}
+.chart-title{font-family:var(--sans);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem;font-weight:300}
+.chart-wrap canvas{max-height:280px}
+
+/* TABLE */
+.amort-table-wrap{margin-top:2rem;overflow-x:auto}
+.amort-table{width:100%;border-collapse:collapse}
+.amort-table th{font-family:var(--sans);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:300;padding:.7rem 1rem;border-bottom:2px solid var(--line);text-align:left}
+.amort-table td{font-family:var(--garamond);font-size:.9rem;color:var(--ink);padding:.65rem 1rem;border-bottom:1px solid var(--line-light)}
+.amort-table tr:last-child td{border-bottom:none}
+.amort-table td.num{text-align:right;font-feature-settings:'tnum'}
+
+/* FULL WIDTH CALC */
+.calc-full .calc-grid{grid-template-columns:1fr}
+.inputs-row{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+.inputs-row .field{padding:1rem 0;border-bottom:none;border-right:1px solid var(--line-light);padding-right:2rem}
+.inputs-row .field:last-child{border-right:none;padding-right:0}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:-280px;top:60px;height:calc(100vh - 60px);z-index:150;transition:left .3s;width:260px}
+  .sidebar.open{left:0}
+  .main{padding:2rem 1.4rem}
+  .calc-grid{grid-template-columns:1fr}
+  .inputs-row{grid-template-columns:1fr}
+  .inputs-row .field{border-right:none;padding-right:0}
+  .mobile-menu-btn{display:flex}
+}
+.mobile-menu-btn{display:none;align-items:center;gap:.6rem;background:var(--forest);border:none;color:var(--parchment);font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;padding:.5rem 1rem;cursor:pointer;margin-bottom:1.5rem;font-weight:300}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Ing. Gary <span>Nguyen</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Domů</a></li>
+    <li><a href="index.html#sluzby">Služby</a></li>
+    <li><a href="kalkulacky.html" class="active">Kalkulačky</a></li>
+    <li><a href="index.html#reference">Reference</a></li>
+  </ul>
+  <a href="index.html#kontakt" class="nav-cta">Domluvit schůzku</a>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">Vyberte nástroj</div>
+      <div class="sidebar-sub">Kalkulačky</div>
+    </div>
+    <ul class="sidebar-list">
+      <li class="sidebar-item">
+        <button class="sidebar-btn active" onclick="showCalc('inflace')">
+          <div class="sidebar-icon">↘</div>
+          <div class="sidebar-label"><span class="sidebar-name">Vliv inflace</span><span class="sidebar-desc">Kupní síla a ceny</span></div>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button class="sidebar-btn" onclick="showCalc('hypoteka')">
+          <div class="sidebar-icon">⌂</div>
+          <div class="sidebar-label"><span class="sidebar-name">Splátková kalkulačka</span><span class="sidebar-desc">Výpočet hypotéky</span></div>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button class="sidebar-btn" onclick="showCalc('jistina')">
+          <div class="sidebar-icon">◈</div>
+          <div class="sidebar-label"><span class="sidebar-name">Stav jistiny v čase</span><span class="sidebar-desc">Zůstatek úvěru</span></div>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button class="sidebar-btn" onclick="showCalc('investice')">
+          <div class="sidebar-icon">↗</div>
+          <div class="sidebar-label"><span class="sidebar-name">Investiční kalkulačka</span><span class="sidebar-desc">Složené úročení</span></div>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button class="sidebar-btn" onclick="showCalc('hyp-vs-inv')">
+          <div class="sidebar-icon">⇄</div>
+          <div class="sidebar-label"><span class="sidebar-name">Hypotéka vs Investice</span><span class="sidebar-desc">Srovnání strategií</span></div>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button class="sidebar-btn" onclick="showCalc('bohatstvi')">
+          <div class="sidebar-icon">◉</div>
+          <div class="sidebar-label"><span class="sidebar-name">Bohatství v nemovitosti</span><span class="sidebar-desc">Růst equity v čase</span></div>
+        </button>
+      </li>
+      <li class="sidebar-item">
+        <button class="sidebar-btn" onclick="showCalc('inv-nemovitost')">
+          <div class="sidebar-icon">₊</div>
+          <div class="sidebar-label"><span class="sidebar-name">Investiční nemovitost</span><span class="sidebar-desc">Výnos a cashflow</span></div>
+        </button>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰ Vybrat kalkulačku</button>
+
+    <!-- 1. INFLACE -->
+    <div class="calc-panel active" id="calc-inflace">
+      <div class="calc-header">
+        <div class="calc-eyebrow">Kalkulačka 01</div>
+        <h1 class="calc-title">Vliv inflace</h1>
+        <p class="calc-desc">Zjistěte, jak inflace v čase snižuje kupní sílu vašich peněz.</p>
+      </div>
+      <div class="calc-grid">
+        <div class="inputs-col">
+          <div class="field">
+            <label>Počáteční částka</label>
+            <div class="field-row">
+              <input type="range" min="10000" max="5000000" step="10000" value="1000000" oninput="updateInflace()" id="inf-castka">
+              <span class="field-value" id="inf-castka-val">1 000 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční inflace (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="15" step="0.1" value="3" oninput="updateInflace()" id="inf-rate">
+              <span class="field-value" id="inf-rate-val">3,0 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Počet let</label>
+            <div class="field-row">
+              <input type="range" min="1" max="40" step="1" value="20" oninput="updateInflace()" id="inf-roky">
+              <span class="field-value" id="inf-roky-val">20 let</span>
+            </div>
+          </div>
+        </div>
+        <div class="results-col">
+          <div class="result-grid-2">
+            <div class="result-mini"><div class="result-mini-label">Dnes</div><div class="result-mini-val" id="inf-dnes">1 000 000 Kč</div></div>
+            <div class="result-mini neg"><div class="result-mini-label">Za <span id="inf-roky-label">20</span> let</div><div class="result-mini-val" id="inf-pozdeji">553 676 Kč</div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Ztráta kupní síly</div>
+            <div class="result-card-val" id="inf-ztrata">446 324 Kč</div>
+            <div class="result-card-sub" id="inf-proc">–44,6 % reálné hodnoty</div>
+          </div>
+          <div class="result-card accent">
+            <div class="result-card-label">Potřebujete za 20 let mít</div>
+            <div class="result-card-val" id="inf-potreba">1 806 111 Kč</div>
+            <div class="result-card-sub">abyste si zachovali dnešní kupní sílu</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Vývoj kupní síly v čase</div>
+        <canvas id="chart-inflace"></canvas>
+      </div>
+    </div>
+
+    <!-- 2. HYPOTEKA -->
+    <div class="calc-panel" id="calc-hypoteka">
+      <div class="calc-header">
+        <div class="calc-eyebrow">Kalkulačka 02</div>
+        <h1 class="calc-title">Splátková kalkulačka</h1>
+        <p class="calc-desc">Výpočet měsíční splátky hypotéky a celkových nákladů úvěru.</p>
+      </div>
+      <div class="calc-grid">
+        <div class="inputs-col">
+          <div class="field">
+            <label>Výše úvěru</label>
+            <div class="field-row">
+              <input type="range" min="500000" max="15000000" step="50000" value="4000000" oninput="updateHypoteka()" id="hyp-uvěr">
+              <span class="field-value" id="hyp-uver-val">4 000 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční úroková sazba (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="10" step="0.05" value="4.5" oninput="updateHypoteka()" id="hyp-sazba">
+              <span class="field-value" id="hyp-sazba-val">4,50 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Doba splatnosti (let)</label>
+            <div class="field-row">
+              <input type="range" min="5" max="30" step="1" value="25" oninput="updateHypoteka()" id="hyp-doba">
+              <span class="field-value" id="hyp-doba-val">25 let</span>
+            </div>
+          </div>
+        </div>
+        <div class="results-col">
+          <div class="result-card accent">
+            <div class="result-card-label">Měsíční splátka</div>
+            <div class="result-card-val" id="hyp-splatka">21 842 Kč</div>
+            <div class="result-card-sub">anuitní splátka</div>
+          </div>
+          <div class="result-grid-2">
+            <div class="result-mini"><div class="result-mini-label">Celkem zaplatíte</div><div class="result-mini-val" id="hyp-celkem">6 552 600 Kč</div></div>
+            <div class="result-mini neg"><div class="result-mini-label">Přeplatek úroky</div><div class="result-mini-val" id="hyp-preplat">2 552 600 Kč</div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Poměr úroků k jistině</div>
+            <div class="result-card-val" id="hyp-pomer">63,8 %</div>
+            <div class="result-card-sub">přeplatku oproti výši úvěru</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Rozložení jistiny a úroků v čase</div>
+        <canvas id="chart-hypoteka"></canvas>
+      </div>
+    </div>
+
+    <!-- 3. JISTINA -->
+    <div class="calc-panel" id="calc-jistina">
+      <div class="calc-header">
+        <div class="calc-eyebrow">Kalkulačka 03</div>
+        <h1 class="calc-title">Stav jistiny v čase</h1>
+        <p class="calc-desc">Sledujte, jak klesá zbývající dluh hypotéky v průběhu let.</p>
+      </div>
+      <div class="calc-grid">
+        <div class="inputs-col">
+          <div class="field">
+            <label>Výše úvěru</label>
+            <div class="field-row">
+              <input type="range" min="500000" max="15000000" step="50000" value="4000000" oninput="updateJistina()" id="jis-uver">
+              <span class="field-value" id="jis-uver-val">4 000 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční úroková sazba (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="10" step="0.05" value="4.5" oninput="updateJistina()" id="jis-sazba">
+              <span class="field-value" id="jis-sazba-val">4,50 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Doba splatnosti (let)</label>
+            <div class="field-row">
+              <input type="range" min="5" max="30" step="1" value="25" oninput="updateJistina()" id="jis-doba">
+              <span class="field-value" id="jis-doba-val">25 let</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Zobrazit rok</label>
+            <div class="field-row">
+              <input type="range" min="1" max="25" step="1" value="10" oninput="updateJistina()" id="jis-rok">
+              <span class="field-value" id="jis-rok-val">rok 10</span>
+            </div>
+          </div>
+        </div>
+        <div class="results-col">
+          <div class="result-grid-2">
+            <div class="result-mini"><div class="result-mini-label">Zbývající dluh</div><div class="result-mini-val" id="jis-zbytek">2 821 430 Kč</div></div>
+            <div class="result-mini"><div class="result-mini-label">Splaceno</div><div class="result-mini-val" id="jis-splaceno">1 178 570 Kč</div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Uhrazeno na úrocích (celkem)</div>
+            <div class="result-card-val" id="jis-uroku">1 442 640 Kč</div>
+            <div class="result-card-sub" id="jis-rok-info">za prvních 10 let</div>
+          </div>
+          <div class="result-card accent">
+            <div class="result-card-label">Equity (podíl nemovitosti)</div>
+            <div class="result-card-val" id="jis-equity">29,5 %</div>
+            <div class="result-card-sub">vaše reálné vlastnictví</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Klesající zůstatek úvěru</div>
+        <canvas id="chart-jistina"></canvas>
+      </div>
+    </div>
+
+    <!-- 4. INVESTICE -->
+    <div class="calc-panel" id="calc-investice">
+      <div class="calc-header">
+        <div class="calc-eyebrow">Kalkulačka 04</div>
+        <h1 class="calc-title">Investiční kalkulačka</h1>
+        <p class="calc-desc">Síla složeného úročení — jak vaše peníze rostou v čase.</p>
+      </div>
+      <div class="calc-grid">
+        <div class="inputs-col">
+          <div class="field">
+            <label>Počáteční investice</label>
+            <div class="field-row">
+              <input type="range" min="0" max="2000000" step="10000" value="200000" oninput="updateInvestice()" id="inv-start">
+              <span class="field-value" id="inv-start-val">200 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Měsíční příspěvek</label>
+            <div class="field-row">
+              <input type="range" min="0" max="50000" step="500" value="5000" oninput="updateInvestice()" id="inv-mesic">
+              <span class="field-value" id="inv-mesic-val">5 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční výnos (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="15" step="0.5" value="7" oninput="updateInvestice()" id="inv-vynos">
+              <span class="field-value" id="inv-vynos-val">7,0 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Investiční horizont (let)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="40" step="1" value="20" oninput="updateInvestice()" id="inv-roky">
+              <span class="field-value" id="inv-roky-val">20 let</span>
+            </div>
+          </div>
+        </div>
+        <div class="results-col">
+          <div class="result-card accent">
+            <div class="result-card-label">Celková hodnota portfolia</div>
+            <div class="result-card-val" id="inv-celkem">3 012 840 Kč</div>
+            <div class="result-card-sub">po 20 letech</div>
+          </div>
+          <div class="result-grid-2">
+            <div class="result-mini"><div class="result-mini-label">Vloženo celkem</div><div class="result-mini-val" id="inv-vlozeno">1 400 000 Kč</div></div>
+            <div class="result-mini"><div class="result-mini-label">Výnos ze složeného úr.</div><div class="result-mini-val" id="inv-vynos-kc">1 612 840 Kč</div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Zhodnocení vkladu</div>
+            <div class="result-card-val" id="inv-pomer">+115,2 %</div>
+            <div class="result-card-sub">čistý výnos oproti vloženým prostředkům</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Růst portfolia — vloženo vs výnos</div>
+        <canvas id="chart-investice"></canvas>
+      </div>
+    </div>
+
+    <!-- 5. HYP VS INV -->
+    <div class="calc-panel" id="calc-hyp-vs-inv">
+      <div class="calc-header">
+        <div class="calc-eyebrow">Kalkulačka 05</div>
+        <h1 class="calc-title">Hypotéka vs Investice</h1>
+        <p class="calc-desc">Vyplatí se koupit nemovitost na hypotéku, nebo raději investovat a platit nájem?</p>
+      </div>
+      <div class="calc-grid">
+        <div class="inputs-col">
+          <div class="field">
+            <label>Cena nemovitosti</label>
+            <div class="field-row">
+              <input type="range" min="1000000" max="15000000" step="100000" value="5000000" oninput="updateHypVsInv()" id="hvi-cena">
+              <span class="field-value" id="hvi-cena-val">5 000 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Vlastní prostředky (záloha)</label>
+            <div class="field-row">
+              <input type="range" min="100000" max="3000000" step="50000" value="1000000" oninput="updateHypVsInv()" id="hvi-zaloh">
+              <span class="field-value" id="hvi-zaloh-val">1 000 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Úroková sazba hypotéky (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="updateHypVsInv()" id="hvi-sazba">
+              <span class="field-value" id="hvi-sazba-val">4,5 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční zhodnocení nemovitosti (%)</label>
+            <div class="field-row">
+              <input type="range" min="0" max="10" step="0.5" value="3" oninput="updateHypVsInv()" id="hvi-nem-rust">
+              <span class="field-value" id="hvi-nem-rust-val">3,0 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční výnos investice (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="15" step="0.5" value="7" oninput="updateHypVsInv()" id="hvi-inv-rust">
+              <span class="field-value" id="hvi-inv-rust-val">7,0 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Měsíční nájem (alternativa)</label>
+            <div class="field-row">
+              <input type="range" min="5000" max="50000" step="500" value="18000" oninput="updateHypVsInv()" id="hvi-najem">
+              <span class="field-value" id="hvi-najem-val">18 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Horizont (let)</label>
+            <div class="field-row">
+              <input type="range" min="5" max="30" step="1" value="20" oninput="updateHypVsInv()" id="hvi-roky">
+              <span class="field-value" id="hvi-roky-val">20 let</span>
+            </div>
+          </div>
+        </div>
+        <div class="results-col">
+          <div class="result-card">
+            <div class="result-card-label">Čisté jmění — vlastní bydlení</div>
+            <div class="result-card-val" id="hvi-jmeni-hyp">4 521 000 Kč</div>
+            <div class="result-card-sub">hodnota nemovitosti − zbývající dluh</div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Čisté jmění — investice + nájem</div>
+            <div class="result-card-val" id="hvi-jmeni-inv">3 892 000 Kč</div>
+            <div class="result-card-sub">portfolio − náklady nájmu</div>
+          </div>
+          <div class="result-card accent">
+            <div class="result-card-label">Výhodnější strategie</div>
+            <div class="result-card-val" id="hvi-vitez">Vlastní bydlení</div>
+            <div class="result-card-sub" id="hvi-rozdil">o 629 000 Kč</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Srovnání čistého jmění v čase</div>
+        <canvas id="chart-hvi"></canvas>
+      </div>
+    </div>
+
+    <!-- 6. BOHATSTVI -->
+    <div class="calc-panel" id="calc-bohatstvi">
+      <div class="calc-header">
+        <div class="calc-eyebrow">Kalkulačka 06</div>
+        <h1 class="calc-title">Bohatství v nemovitosti</h1>
+        <p class="calc-desc">Jak se váš podíl (equity) na nemovitosti zvyšuje splácením a růstem ceny.</p>
+      </div>
+      <div class="calc-grid">
+        <div class="inputs-col">
+          <div class="field">
+            <label>Kupní cena nemovitosti</label>
+            <div class="field-row">
+              <input type="range" min="1000000" max="20000000" step="100000" value="6000000" oninput="updateBohatstvi()" id="boh-cena">
+              <span class="field-value" id="boh-cena-val">6 000 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Vlastní kapitál (záloha)</label>
+            <div class="field-row">
+              <input type="range" min="100000" max="5000000" step="100000" value="1200000" oninput="updateBohatstvi()" id="boh-zaloh">
+              <span class="field-value" id="boh-zaloh-val">1 200 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Úroková sazba (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="updateBohatstvi()" id="boh-sazba">
+              <span class="field-value" id="boh-sazba-val">4,5 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Doba splatnosti (let)</label>
+            <div class="field-row">
+              <input type="range" min="5" max="30" step="1" value="25" oninput="updateBohatstvi()" id="boh-doba">
+              <span class="field-value" id="boh-doba-val">25 let</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční růst ceny nemovitosti (%)</label>
+            <div class="field-row">
+              <input type="range" min="0" max="10" step="0.5" value="3" oninput="updateBohatstvi()" id="boh-rust">
+              <span class="field-value" id="boh-rust-val">3,0 %</span>
+            </div>
+          </div>
+        </div>
+        <div class="results-col">
+          <div class="result-card accent">
+            <div class="result-card-label">Equity po 10 letech</div>
+            <div class="result-card-val" id="boh-equity-10">2 891 000 Kč</div>
+            <div class="result-card-sub">váš podíl na nemovitosti</div>
+          </div>
+          <div class="result-grid-2">
+            <div class="result-mini"><div class="result-mini-label">Hodnota po 10 l.</div><div class="result-mini-val" id="boh-hodnota-10">8 064 000 Kč</div></div>
+            <div class="result-mini"><div class="result-mini-label">Zbývající dluh</div><div class="result-mini-val" id="boh-dluh-10">5 173 000 Kč</div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Zhodnocení vlastního kapitálu</div>
+            <div class="result-card-val" id="boh-zhodnoceni">+141 %</div>
+            <div class="result-card-sub">leverage efekt hypotéky</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Equity vs zbývající dluh v čase</div>
+        <canvas id="chart-bohatstvi"></canvas>
+      </div>
+    </div>
+
+    <!-- 7. INV NEMOVITOST -->
+    <div class="calc-panel" id="calc-inv-nemovitost">
+      <div class="calc-header">
+        <div class="calc-eyebrow">Kalkulačka 07</div>
+        <h1 class="calc-title">Investiční nemovitost</h1>
+        <p class="calc-desc">Výpočet výnosnosti pronajímané nemovitosti — cashflow, ROI a návratnost.</p>
+      </div>
+      <div class="calc-grid">
+        <div class="inputs-col">
+          <div class="field">
+            <label>Kupní cena nemovitosti</label>
+            <div class="field-row">
+              <input type="range" min="1000000" max="15000000" step="100000" value="4000000" oninput="updateInvNem()" id="in-cena">
+              <span class="field-value" id="in-cena-val">4 000 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Vlastní kapitál</label>
+            <div class="field-row">
+              <input type="range" min="200000" max="5000000" step="100000" value="800000" oninput="updateInvNem()" id="in-kapital">
+              <span class="field-value" id="in-kapital-val">800 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Úroková sazba (%)</label>
+            <div class="field-row">
+              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="updateInvNem()" id="in-sazba">
+              <span class="field-value" id="in-sazba-val">4,5 %</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Měsíční nájem (příjem)</label>
+            <div class="field-row">
+              <input type="range" min="5000" max="60000" step="500" value="18000" oninput="updateInvNem()" id="in-najem">
+              <span class="field-value" id="in-najem-val">18 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Měsíční náklady (správa, pojištění...)</label>
+            <div class="field-row">
+              <input type="range" min="500" max="10000" step="500" value="2000" oninput="updateInvNem()" id="in-naklady">
+              <span class="field-value" id="in-naklady-val">2 000 Kč</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Roční růst nájmu (%)</label>
+            <div class="field-row">
+              <input type="range" min="0" max="10" step="0.5" value="3" oninput="updateInvNem()" id="in-najem-rust">
+              <span class="field-value" id="in-najem-rust-val">3,0 %</span>
+            </div>
+          </div>
+        </div>
+        <div class="results-col">
+          <div class="result-card accent">
+            <div class="result-card-label">Měsíční cashflow</div>
+            <div class="result-card-val" id="in-cashflow">+2 340 Kč</div>
+            <div class="result-card-sub">po splátce hypotéky a nákladech</div>
+          </div>
+          <div class="result-grid-2">
+            <div class="result-mini"><div class="result-mini-label">Hrubý výnos</div><div class="result-mini-val" id="in-hrubý">5,4 %</div></div>
+            <div class="result-mini"><div class="result-mini-label">Čistý výnos (ROI)</div><div class="result-mini-val" id="in-roi">35,1 %</div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-card-label">Návratnost vlastního kapitálu</div>
+            <div class="result-card-val" id="in-navratnost">2,9 let</div>
+            <div class="result-card-sub">z cashflow (bez zhodnocení nemovitosti)</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">Kumulativní cashflow v čase (10 let)</div>
+        <canvas id="chart-innem"></canvas>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// HELPERS
+function fmt(n){return Math.round(n).toLocaleString('cs-CZ')+' Kč'}
+function fmtNum(n,dec=1){return n.toLocaleString('cs-CZ',{minimumFractionDigits:dec,maximumFractionDigits:dec})}
+function pct(n){return fmtNum(n)+' %'}
+const chartDefaults={
+  color:'rgba(107,95,74,1)',
+  grid:{color:'rgba(200,186,160,0.3)'},
+  font:{family:"'Jost', sans-serif",size:11,weight:'300'}
+};
+Chart.defaults.color=chartDefaults.color;
+Chart.defaults.font=chartDefaults.font;
+
+let charts={};
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
+
+// SHOW CALC
+function showCalc(id){
+  document.querySelectorAll('.calc-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('calc-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  // trigger update
+  const fns={inflace:updateInflace,hypoteka:updateHypoteka,jistina:updateJistina,investice:updateInvestice,'hyp-vs-inv':updateHypVsInv,bohatstvi:updateBohatstvi,'inv-nemovitost':updateInvNem};
+  if(fns[id])setTimeout(fns[id],50);
+}
+
+// 1. INFLACE
+function updateInflace(){
+  const castka=+document.getElementById('inf-castka').value;
+  const rate=+document.getElementById('inf-rate').value/100;
+  const roky=+document.getElementById('inf-roky').value;
+  document.getElementById('inf-castka-val').textContent=fmt(castka);
+  document.getElementById('inf-rate-val').textContent=fmtNum(rate*100)+' %';
+  document.getElementById('inf-roky-val').textContent=roky+' let';
+  document.getElementById('inf-roky-label').textContent=roky;
+  const pozdeji=castka/Math.pow(1+rate,roky);
+  const potreba=castka*Math.pow(1+rate,roky);
+  const ztrata=castka-pozdeji;
+  document.getElementById('inf-dnes').textContent=fmt(castka);
+  document.getElementById('inf-pozdeji').textContent=fmt(pozdeji);
+  document.getElementById('inf-ztrata').textContent=fmt(ztrata);
+  document.getElementById('inf-proc').textContent='–'+fmtNum(ztrata/castka*100)+' % reálné hodnoty';
+  document.getElementById('inf-potreba').textContent=fmt(potreba);
+  // chart
+  const labels=[],data1=[],data2=[];
+  for(let y=0;y<=roky;y++){
+    labels.push(y===0?'Dnes':'Rok '+y);
+    data1.push(Math.round(castka/Math.pow(1+rate,y)));
+    data2.push(Math.round(castka));
+  }
+  destroyChart('inflace');
+  charts['inflace']=new Chart(document.getElementById('chart-inflace'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Reálná kupní síla',data:data1,borderColor:'#9A7B35',backgroundColor:'rgba(154,123,53,0.08)',fill:true,tension:.3,pointRadius:2},
+      {label:'Nominální hodnota',data:data2,borderColor:'rgba(107,95,74,0.4)',borderDash:[5,5],fill:false,tension:0,pointRadius:0}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{font:{family:"'Jost',sans-serif",size:11,weight:'300'}}}},scales:{y:{ticks:{callback:v=>Math.round(v).toLocaleString('cs-CZ')+' Kč',font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.3)'}},x:{ticks:{font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.2)'}}}}
+  });
+}
+
+// 2. HYPOTEKA
+function calcSplatka(P,r,n){
+  const rm=r/12;
+  if(rm===0)return P/n;
+  return P*rm*Math.pow(1+rm,n)/(Math.pow(1+rm,n)-1);
+}
+function updateHypoteka(){
+  const P=+document.getElementById('hyp-uvěr').value;
+  const r=+document.getElementById('hyp-sazba').value/100;
+  const n=+document.getElementById('hyp-doba').value*12;
+  document.getElementById('hyp-uver-val').textContent=fmt(P);
+  document.getElementById('hyp-sazba-val').textContent=fmtNum(r*100,2)+' %';
+  document.getElementById('hyp-doba-val').textContent=(n/12)+' let';
+  const splatka=calcSplatka(P,r,n);
+  const celkem=splatka*n;
+  const preplat=celkem-P;
+  document.getElementById('hyp-splatka').textContent=fmt(splatka);
+  document.getElementById('hyp-celkem').textContent=fmt(celkem);
+  document.getElementById('hyp-preplat').textContent=fmt(preplat);
+  document.getElementById('hyp-pomer').textContent=fmtNum(preplat/P*100)+' %';
+  // chart — anuita breakdown po rocich
+  const roky=n/12;
+  const labels=[],jistData=[],urokyData=[];
+  let balance=P;
+  const rm=r/12;
+  for(let y=1;y<=roky;y++){
+    let yJist=0,yUrok=0;
+    for(let m=0;m<12;m++){
+      const urok=balance*rm;
+      const jist=splatka-urok;
+      yUrok+=urok;yJist+=jist;
+      balance-=jist;
+    }
+    labels.push('Rok '+y);
+    jistData.push(Math.round(yJist));
+    urokyData.push(Math.round(yUrok));
+  }
+  destroyChart('hypoteka');
+  charts['hypoteka']=new Chart(document.getElementById('chart-hypoteka'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Úmor jistiny',data:jistData,backgroundColor:'rgba(27,42,30,0.75)',borderRadius:2},
+      {label:'Úroky',data:urokyData,backgroundColor:'rgba(154,123,53,0.6)',borderRadius:2}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{font:{family:"'Jost',sans-serif",size:11,weight:'300'}}}},scales:{x:{stacked:true,ticks:{font:{family:"'Jost',sans-serif",size:10}},grid:{display:false}},y:{stacked:true,ticks:{callback:v=>Math.round(v).toLocaleString('cs-CZ'),font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.3)'}}}}
+  });
+}
+
+// 3. JISTINA
+function updateJistina(){
+  const P=+document.getElementById('jis-uver').value;
+  const r=+document.getElementById('jis-sazba').value/100;
+  const dobaN=+document.getElementById('jis-doba').value;
+  const zobRok=Math.min(+document.getElementById('jis-rok').value,dobaN);
+  document.getElementById('jis-uver-val').textContent=fmt(P);
+  document.getElementById('jis-sazba-val').textContent=fmtNum(r*100,2)+' %';
+  document.getElementById('jis-doba-val').textContent=dobaN+' let';
+  document.getElementById('jis-rok-val').textContent='rok '+zobRok;
+  document.getElementById('jis-rok-info').textContent='za prvních '+zobRok+' let';
+  const splatka=calcSplatka(P,r,dobaN*12);
+  const rm=r/12;
+  let balance=P,totalUrok=0;
+  const labels=[],balData=[];
+  labels.push('Start');balData.push(Math.round(P));
+  for(let y=1;y<=dobaN;y++){
+    for(let m=0;m<12;m++){
+      const urok=balance*rm;
+      totalUrok+=urok;
+      balance-=splatka-urok;
+      if(balance<0)balance=0;
+    }
+    labels.push('Rok '+y);balData.push(Math.round(balance));
+  }
+  let bal2=P,tot2=0;
+  for(let y=1;y<=zobRok;y++){
+    for(let m=0;m<12;m++){
+      const u=bal2*rm;tot2+=u;bal2-=splatka-u;if(bal2<0)bal2=0;
+    }
+  }
+  document.getElementById('jis-zbytek').textContent=fmt(bal2);
+  document.getElementById('jis-splaceno').textContent=fmt(P-bal2);
+  document.getElementById('jis-uroku').textContent=fmt(tot2);
+  document.getElementById('jis-equity').textContent=fmtNum((P-bal2)/P*100)+' %';
+  destroyChart('jistina');
+  charts['jistina']=new Chart(document.getElementById('chart-jistina'),{
+    type:'line',
+    data:{labels,datasets:[{label:'Zbývající dluh',data:balData,borderColor:'#9A7B35',backgroundColor:'rgba(154,123,53,0.1)',fill:true,tension:.3,pointRadius:1}]},
+    options:{responsive:true,plugins:{legend:{labels:{font:{family:"'Jost',sans-serif",size:11,weight:'300'}}}},scales:{y:{ticks:{callback:v=>Math.round(v).toLocaleString('cs-CZ')+' Kč',font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.3)'}},x:{ticks:{font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.2)'}}}}
+  });
+}
+
+// 4. INVESTICE
+function updateInvestice(){
+  const P=+document.getElementById('inv-start').value;
+  const mesic=+document.getElementById('inv-mesic').value;
+  const r=+document.getElementById('inv-vynos').value/100;
+  const roky=+document.getElementById('inv-roky').value;
+  document.getElementById('inv-start-val').textContent=fmt(P);
+  document.getElementById('inv-mesic-val').textContent=fmt(mesic);
+  document.getElementById('inv-vynos-val').textContent=fmtNum(r*100)+' %';
+  document.getElementById('inv-roky-val').textContent=roky+' let';
+  const rm=r/12;
+  let bal=P;
+  const labels=[],vlozData=[],balData=[];
+  labels.push('Start');vlozData.push(P);balData.push(P);
+  let vlozCelkem=P;
+  for(let y=1;y<=roky;y++){
+    for(let m=0;m<12;m++){bal=bal*(1+rm)+mesic}
+    vlozCelkem+=mesic*12;
+    labels.push('Rok '+y);vlozData.push(Math.round(vlozCelkem));balData.push(Math.round(bal));
+  }
+  const vynos=bal-vlozCelkem;
+  document.getElementById('inv-celkem').textContent=fmt(bal);
+  document.getElementById('inv-vlozeno').textContent=fmt(vlozCelkem);
+  document.getElementById('inv-vynos-kc').textContent=fmt(vynos);
+  document.getElementById('inv-pomer').textContent='+'+fmtNum(vynos/vlozCelkem*100)+' %';
+  destroyChart('investice');
+  charts['investice']=new Chart(document.getElementById('chart-investice'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Celková hodnota',data:balData,borderColor:'#9A7B35',backgroundColor:'rgba(154,123,53,0.1)',fill:true,tension:.3,pointRadius:1},
+      {label:'Vloženo',data:vlozData,borderColor:'rgba(27,42,30,0.6)',backgroundColor:'rgba(27,42,30,0.05)',fill:true,tension:.3,pointRadius:1}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{font:{family:"'Jost',sans-serif",size:11,weight:'300'}}}},scales:{y:{ticks:{callback:v=>Math.round(v).toLocaleString('cs-CZ')+' Kč',font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.3)'}},x:{ticks:{font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.2)'}}}}
+  });
+}
+
+// 5. HYP VS INV
+function updateHypVsInv(){
+  const cena=+document.getElementById('hvi-cena').value;
+  const zaloh=+document.getElementById('hvi-zaloh').value;
+  const sazba=+document.getElementById('hvi-sazba').value/100;
+  const nemRust=+document.getElementById('hvi-nem-rust').value/100;
+  const invRust=+document.getElementById('hvi-inv-rust').value/100;
+  const najem=+document.getElementById('hvi-najem').value;
+  const roky=+document.getElementById('hvi-roky').value;
+  document.getElementById('hvi-cena-val').textContent=fmt(cena);
+  document.getElementById('hvi-zaloh-val').textContent=fmt(zaloh);
+  document.getElementById('hvi-sazba-val').textContent=fmtNum(sazba*100)+' %';
+  document.getElementById('hvi-nem-rust-val').textContent=fmtNum(nemRust*100)+' %';
+  document.getElementById('hvi-inv-rust-val').textContent=fmtNum(invRust*100)+' %';
+  document.getElementById('hvi-najem-val').textContent=fmt(najem);
+  document.getElementById('hvi-roky-val').textContent=roky+' let';
+  const uvěr=cena-zaloh;
+  const splatka=calcSplatka(uvěr,sazba,roky*12);
+  const rm=sazba/12;
+  const labels=[],hypData=[],invData=[];
+  let bal=uvěr,invBal=zaloh,totalNajem=0;
+  const invRm=invRust/12;
+  labels.push('Start');hypData.push(Math.round(cena-uvěr));invData.push(Math.round(zaloh));
+  for(let y=1;y<=roky;y++){
+    let nem=cena*Math.pow(1+nemRust,y);
+    for(let m=0;m<12;m++){
+      const u=bal*rm;bal-=splatka-u;if(bal<0)bal=0;
+      // investor platí najem, rozdíl splatka-najem investuje
+      const uspory=splatka-najem;
+      invBal=invBal*(1+invRm)+(uspory>0?uspory:0);
+      totalNajem+=najem;
+    }
+    const hypJmeni=nem-Math.max(bal,0);
+    labels.push('Rok '+y);
+    hypData.push(Math.round(hypJmeni));
+    invData.push(Math.round(invBal));
+  }
+  const lastHyp=hypData[hypData.length-1];
+  const lastInv=invData[invData.length-1];
+  document.getElementById('hvi-jmeni-hyp').textContent=fmt(lastHyp);
+  document.getElementById('hvi-jmeni-inv').textContent=fmt(lastInv);
+  if(lastHyp>=lastInv){
+    document.getElementById('hvi-vitez').textContent='Vlastní bydlení';
+    document.getElementById('hvi-rozdil').textContent='o '+fmt(lastHyp-lastInv)+' výhodnější';
+  } else {
+    document.getElementById('hvi-vitez').textContent='Investice + nájem';
+    document.getElementById('hvi-rozdil').textContent='o '+fmt(lastInv-lastHyp)+' výhodnější';
+  }
+  destroyChart('hvi');
+  charts['hvi']=new Chart(document.getElementById('chart-hvi'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Vlastní bydlení (equity)',data:hypData,borderColor:'#1B2A1E',backgroundColor:'rgba(27,42,30,0.08)',fill:true,tension:.3,pointRadius:1},
+      {label:'Investice + nájem',data:invData,borderColor:'#9A7B35',backgroundColor:'rgba(154,123,53,0.08)',fill:true,tension:.3,pointRadius:1}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{font:{family:"'Jost',sans-serif",size:11,weight:'300'}}}},scales:{y:{ticks:{callback:v=>Math.round(v).toLocaleString('cs-CZ')+' Kč',font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.3)'}},x:{ticks:{font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.2)'}}}}
+  });
+}
+
+// 6. BOHATSTVI
+function updateBohatstvi(){
+  const cena=+document.getElementById('boh-cena').value;
+  const zaloh=+document.getElementById('boh-zaloh').value;
+  const sazba=+document.getElementById('boh-sazba').value/100;
+  const doba=+document.getElementById('boh-doba').value;
+  const rust=+document.getElementById('boh-rust').value/100;
+  document.getElementById('boh-cena-val').textContent=fmt(cena);
+  document.getElementById('boh-zaloh-val').textContent=fmt(zaloh);
+  document.getElementById('boh-sazba-val').textContent=fmtNum(sazba*100)+' %';
+  document.getElementById('boh-doba-val').textContent=doba+' let';
+  document.getElementById('boh-rust-val').textContent=fmtNum(rust*100)+' %';
+  const uvěr=cena-zaloh;
+  const splatka=calcSplatka(uvěr,sazba,doba*12);
+  const rm=sazba/12;
+  const labels=[],equityData=[],dluhData=[];
+  let bal=uvěr;
+  labels.push('Start');equityData.push(Math.round(cena-uvěr));dluhData.push(Math.round(uvěr));
+  let equity10=0,hodnota10=0,dluh10=0;
+  for(let y=1;y<=doba;y++){
+    for(let m=0;m<12;m++){const u=bal*rm;bal-=splatka-u;if(bal<0)bal=0}
+    const nem=cena*Math.pow(1+rust,y);
+    const eq=nem-Math.max(bal,0);
+    labels.push('Rok '+y);equityData.push(Math.round(eq));dluhData.push(Math.round(Math.max(bal,0)));
+    if(y===10){equity10=eq;hodnota10=nem;dluh10=Math.max(bal,0)}
+  }
+  document.getElementById('boh-equity-10').textContent=fmt(equity10);
+  document.getElementById('boh-hodnota-10').textContent=fmt(hodnota10);
+  document.getElementById('boh-dluh-10').textContent=fmt(dluh10);
+  document.getElementById('boh-zhodnoceni').textContent='+'+fmtNum((equity10-zaloh)/zaloh*100,0)+' %';
+  destroyChart('bohatstvi');
+  charts['bohatstvi']=new Chart(document.getElementById('chart-bohatstvi'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Vaše equity',data:equityData,borderColor:'#9A7B35',backgroundColor:'rgba(154,123,53,0.12)',fill:true,tension:.3,pointRadius:1},
+      {label:'Zbývající dluh',data:dluhData,borderColor:'rgba(192,57,43,0.6)',backgroundColor:'rgba(192,57,43,0.05)',fill:true,tension:.3,pointRadius:1}
+    ]},
+    options:{responsive:true,plugins:{legend:{labels:{font:{family:"'Jost',sans-serif",size:11,weight:'300'}}}},scales:{y:{ticks:{callback:v=>Math.round(v).toLocaleString('cs-CZ')+' Kč',font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.3)'}},x:{ticks:{font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.2)'}}}}
+  });
+}
+
+// 7. INV NEMOVITOST
+function updateInvNem(){
+  const cena=+document.getElementById('in-cena').value;
+  const kapital=+document.getElementById('in-kapital').value;
+  const sazba=+document.getElementById('in-sazba').value/100;
+  const najem=+document.getElementById('in-najem').value;
+  const naklady=+document.getElementById('in-naklady').value;
+  const najemRust=+document.getElementById('in-najem-rust').value/100;
+  document.getElementById('in-cena-val').textContent=fmt(cena);
+  document.getElementById('in-kapital-val').textContent=fmt(kapital);
+  document.getElementById('in-sazba-val').textContent=fmtNum(sazba*100)+' %';
+  document.getElementById('in-najem-val').textContent=fmt(najem);
+  document.getElementById('in-naklady-val').textContent=fmt(naklady);
+  document.getElementById('in-najem-rust-val').textContent=fmtNum(najemRust*100)+' %';
+  const uvěr=cena-kapital;
+  const splatka=calcSplatka(uvěr,sazba,25*12);
+  const mesicniCF=najem-naklady-splatka;
+  const hrubyVynos=najem*12/cena*100;
+  const rocniCF=mesicniCF*12;
+  const roi=rocniCF/kapital*100;
+  document.getElementById('in-cashflow').textContent=(mesicniCF>=0?'+':'')+fmt(mesicniCF);
+  document.getElementById('in-hrubý').textContent=fmtNum(hrubyVynos)+' %';
+  document.getElementById('in-roi').textContent=fmtNum(roi)+' %';
+  const navrat=kapital/Math.max(rocniCF,1);
+  document.getElementById('in-navratnost').textContent=rocniCF>0?fmtNum(navrat,1)+' let':'∞';
+  // cumulative cashflow chart
+  const labels=[],cfData=[];
+  let cumCF=0,curNajem=najem;
+  labels.push('Start');cfData.push(0);
+  for(let y=1;y<=10;y++){
+    curNajem*=(1+najemRust);
+    const cf=(curNajem-naklady-splatka)*12;
+    cumCF+=cf;
+    labels.push('Rok '+y);cfData.push(Math.round(cumCF));
+  }
+  destroyChart('innem');
+  charts['innem']=new Chart(document.getElementById('chart-innem'),{
+    type:'bar',
+    data:{labels,datasets:[{label:'Kumulativní cashflow',data:cfData,backgroundColor:cfData.map(v=>v>=0?'rgba(27,42,30,0.7)':'rgba(192,57,43,0.6)'),borderRadius:2}]},
+    options:{responsive:true,plugins:{legend:{labels:{font:{family:"'Jost',sans-serif",size:11,weight:'300'}}}},scales:{y:{ticks:{callback:v=>Math.round(v).toLocaleString('cs-CZ')+' Kč',font:{family:"'Jost',sans-serif",size:10}},grid:{color:'rgba(200,186,160,0.3)'}},x:{ticks:{font:{family:"'Jost',sans-serif",size:10}},grid:{display:false}}}}
+  });
+}
+
+// INIT ALL
+window.addEventListener('load',()=>{
+  updateInflace();
+  setTimeout(()=>{updateHypoteka();updateJistina();updateInvestice();updateHypVsInv();updateBohatstvi();updateInvNem();},100);
+});
+</script>
+</body>
+</html>
