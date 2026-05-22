@@ -65,14 +65,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
 .inputs-col{display:flex;flex-direction:column;gap:0}
 .field{padding:1.2rem 0;border-bottom:1px solid var(--line-light)}
 .field:last-child{border-bottom:none}
-.field label{font-family:var(--sans);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.7rem;font-weight:500}
+.field-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.8rem}
+.field label{font-family:var(--sans);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.field-input-wrap{display:flex;align-items:center;gap:.3rem;background:var(--parchment-3);border:1px solid var(--line);padding:.3rem .6rem}
+.field-num{font-family:var(--serif);font-size:1rem;font-weight:400;color:var(--forest);background:none;border:none;outline:none;width:7rem;text-align:right;-moz-appearance:textfield}
+.field-num::-webkit-outer-spin-button,.field-num::-webkit-inner-spin-button{-webkit-appearance:none}
+.field-num:focus{color:var(--gold)}
+.field-unit{font-family:var(--sans);font-size:.65rem;color:var(--muted);font-weight:400;white-space:nowrap}
 .field-row{display:flex;align-items:center;gap:.5rem}
 .field input[type=range]{flex:1;-webkit-appearance:none;height:1px;background:var(--line);outline:none;cursor:pointer}
-.field input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--gold);border-radius:50%;cursor:pointer;transition:transform .15s}
-.field input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25)}
-.field-value{font-family:var(--serif);font-size:1.15rem;font-weight:400;color:var(--forest);min-width:5.5rem;text-align:right;background:none;border:none;border-bottom:1px solid transparent;outline:none;cursor:text;transition:border-color .2s;padding-bottom:1px}
-.field-value:hover{border-bottom-color:var(--line)}
-.field-value:focus{border-bottom-color:var(--gold);color:var(--gold)}
+.field input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--gold);border-radius:50%;cursor:pointer;transition:transform .15s;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.field input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.field-value{display:none}
 .results-col{position:sticky;top:80px}
 .result-card{background:var(--forest);padding:1.8rem 2rem;margin-bottom:1rem;border:1px solid rgba(196,160,90,.1)}
 .result-card-label{font-family:var(--sans);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(246,240,228,.55);margin-bottom:.5rem;font-weight:400}
@@ -241,22 +245,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
           <div class="field">
             <label>Počáteční částka</label>
             <div class="field-row">
-              <input type="range" min="10000" max="5000000" step="10000" value="1000000" oninput="updateInflace()" id="inf-castka">
-              <input class="field-value" id="inf-castka-val" value="1 000 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="10000" max="5000000" step="10000" value="1000000" oninput="sliderChanged(this,'inf-castka-val')" id="inf-castka">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="inf-castka-val" value="1000000" step="10000" min="10000" onchange="numChanged(this,'inf-castka')" oninput="numChanged(this,'inf-castka')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Roční inflace (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="15" step="0.1" value="3" oninput="updateInflace()" id="inf-rate">
-              <input class="field-value" id="inf-rate-val" value="3,0 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="15" step="0.1" value="3" oninput="sliderChanged(this,'inf-rate-val')" id="inf-rate">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="inf-rate-val" value="3" step="0.1" min="1" onchange="numChanged(this,'inf-rate')" oninput="numChanged(this,'inf-rate')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Počet let</label>
             <div class="field-row">
-              <input type="range" min="1" max="40" step="1" value="20" oninput="updateInflace()" id="inf-roky">
-              <input class="field-value" id="inf-roky-val" value="20 let" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="40" step="1" value="20" oninput="sliderChanged(this,'inf-roky-val')" id="inf-roky">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="inf-roky-val" value="20" step="1" min="1" onchange="numChanged(this,'inf-roky')" oninput="numChanged(this,'inf-roky')">
+              <span class="field-unit">let</span>
             </div>
           </div>
         </div>
@@ -299,22 +312,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
           <div class="field">
             <label>Výše úvěru</label>
             <div class="field-row">
-              <input type="range" min="500000" max="15000000" step="50000" value="4000000" oninput="updateHypoteka()" id="hyp-uvěr">
-              <input class="field-value" id="hyp-uver-val" value="4 000 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="500000" max="15000000" step="50000" value="4000000" oninput="sliderChanged(this,'hyp-uver-val')" id="hyp-uvěr">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hyp-uver-val" value="4000000" step="50000" min="500000" onchange="numChanged(this,'hyp-uvěr')" oninput="numChanged(this,'hyp-uvěr')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Roční úroková sazba (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="10" step="0.05" value="4.5" oninput="updateHypoteka()" id="hyp-sazba">
-              <input class="field-value" id="hyp-sazba-val" value="4,50 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="10" step="0.05" value="4.5" oninput="sliderChanged(this,'hyp-sazba-val')" id="hyp-sazba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hyp-sazba-val" value="4.5" step="0.05" min="1" onchange="numChanged(this,'hyp-sazba')" oninput="numChanged(this,'hyp-sazba')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Doba splatnosti (let)</label>
             <div class="field-row">
-              <input type="range" min="5" max="30" step="1" value="25" oninput="updateHypoteka()" id="hyp-doba">
-              <input class="field-value" id="hyp-doba-val" value="25 let" onchange="syncFromInput(this)" />
+              <input type="range" min="5" max="30" step="1" value="25" oninput="sliderChanged(this,'hyp-doba-val')" id="hyp-doba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hyp-doba-val" value="25" step="1" min="5" onchange="numChanged(this,'hyp-doba')" oninput="numChanged(this,'hyp-doba')">
+              <span class="field-unit">let</span>
             </div>
           </div>
         </div>
@@ -357,29 +379,41 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
           <div class="field">
             <label>Výše úvěru</label>
             <div class="field-row">
-              <input type="range" min="500000" max="15000000" step="50000" value="4000000" oninput="updateJistina()" id="jis-uver">
-              <input class="field-value" id="jis-uver-val" value="4 000 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="500000" max="15000000" step="50000" value="4000000" oninput="sliderChanged(this,'jis-uver-val')" id="jis-uver">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="jis-uver-val" value="4000000" step="50000" min="500000" onchange="numChanged(this,'jis-uver')" oninput="numChanged(this,'jis-uver')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Roční úroková sazba (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="10" step="0.05" value="4.5" oninput="updateJistina()" id="jis-sazba">
-              <input class="field-value" id="jis-sazba-val" value="4,50 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="10" step="0.05" value="4.5" oninput="sliderChanged(this,'jis-sazba-val')" id="jis-sazba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="jis-sazba-val" value="4.5" step="0.05" min="1" onchange="numChanged(this,'jis-sazba')" oninput="numChanged(this,'jis-sazba')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Doba splatnosti (let)</label>
             <div class="field-row">
-              <input type="range" min="5" max="30" step="1" value="25" oninput="updateJistina()" id="jis-doba">
-              <input class="field-value" id="jis-doba-val" value="25 let" onchange="syncFromInput(this)" />
+              <input type="range" min="5" max="30" step="1" value="25" oninput="sliderChanged(this,'jis-doba-val')" id="jis-doba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="jis-doba-val" value="25" step="1" min="5" onchange="numChanged(this,'jis-doba')" oninput="numChanged(this,'jis-doba')">
+              <span class="field-unit">let</span>
             </div>
           </div>
           <div class="field">
             <label>Zobrazit rok</label>
             <div class="field-row">
-              <input type="range" min="1" max="25" step="1" value="10" oninput="updateJistina()" id="jis-rok">
-              <input class="field-value" id="jis-rok-val" value="rok 10" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="25" step="1" value="10" oninput="sliderChanged(this,'jis-rok-val')" id="jis-rok">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="jis-rok-val" value="10" step="1" min="1" onchange="numChanged(this,'jis-rok')" oninput="numChanged(this,'jis-rok')">
+              <span class="field-unit">rok</span>
             </div>
           </div>
         </div>
@@ -422,29 +456,41 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
           <div class="field">
             <label>Počáteční investice</label>
             <div class="field-row">
-              <input type="range" min="0" max="2000000" step="10000" value="200000" oninput="updateInvestice()" id="inv-start">
-              <input class="field-value" id="inv-start-val" value="200 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="0" max="2000000" step="10000" value="200000" oninput="sliderChanged(this,'inv-start-val')" id="inv-start">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="inv-start-val" value="200000" step="10000" min="0" onchange="numChanged(this,'inv-start')" oninput="numChanged(this,'inv-start')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Měsíční příspěvek</label>
             <div class="field-row">
-              <input type="range" min="0" max="50000" step="500" value="5000" oninput="updateInvestice()" id="inv-mesic">
-              <input class="field-value" id="inv-mesic-val" value="5 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="0" max="50000" step="500" value="5000" oninput="sliderChanged(this,'inv-mesic-val')" id="inv-mesic">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="inv-mesic-val" value="5000" step="500" min="0" onchange="numChanged(this,'inv-mesic')" oninput="numChanged(this,'inv-mesic')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Roční výnos (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="15" step="0.5" value="7" oninput="updateInvestice()" id="inv-vynos">
-              <input class="field-value" id="inv-vynos-val" value="7,0 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="15" step="0.5" value="7" oninput="sliderChanged(this,'inv-vynos-val')" id="inv-vynos">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="inv-vynos-val" value="7" step="0.5" min="1" onchange="numChanged(this,'inv-vynos')" oninput="numChanged(this,'inv-vynos')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Investiční horizont (let)</label>
             <div class="field-row">
-              <input type="range" min="1" max="40" step="1" value="20" oninput="updateInvestice()" id="inv-roky">
-              <input class="field-value" id="inv-roky-val" value="20 let" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="40" step="1" value="20" oninput="sliderChanged(this,'inv-roky-val')" id="inv-roky">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="inv-roky-val" value="20" step="1" min="1" onchange="numChanged(this,'inv-roky')" oninput="numChanged(this,'inv-roky')">
+              <span class="field-unit">let</span>
             </div>
           </div>
         </div>
@@ -488,50 +534,71 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
           <div class="field">
             <label>Cena nemovitosti</label>
             <div class="field-row">
-              <input type="range" min="1000000" max="15000000" step="100000" value="5000000" oninput="updateHypVsInv()" id="hvi-cena">
-              <input class="field-value" id="hvi-cena-val" value="5 000 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="1000000" max="15000000" step="100000" value="5000000" oninput="sliderChanged(this,'hvi-cena-val')" id="hvi-cena">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hvi-cena-val" value="5000000" step="100000" min="1000000" onchange="numChanged(this,'hvi-cena')" oninput="numChanged(this,'hvi-cena')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Vlastní prostředky (záloha)</label>
             <div class="field-row">
-              <input type="range" min="100000" max="3000000" step="50000" value="1000000" oninput="updateHypVsInv()" id="hvi-zaloh">
-              <input class="field-value" id="hvi-zaloh-val" value="1 000 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="100000" max="3000000" step="50000" value="1000000" oninput="sliderChanged(this,'hvi-zaloh-val')" id="hvi-zaloh">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hvi-zaloh-val" value="1000000" step="50000" min="100000" onchange="numChanged(this,'hvi-zaloh')" oninput="numChanged(this,'hvi-zaloh')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Úroková sazba hypotéky (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="updateHypVsInv()" id="hvi-sazba">
-              <input class="field-value" id="hvi-sazba-val" value="4,5 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="sliderChanged(this,'hvi-sazba-val')" id="hvi-sazba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hvi-sazba-val" value="4.5" step="0.1" min="1" onchange="numChanged(this,'hvi-sazba')" oninput="numChanged(this,'hvi-sazba')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Roční zhodnocení nemovitosti (%)</label>
             <div class="field-row">
-              <input type="range" min="0" max="10" step="0.5" value="3" oninput="updateHypVsInv()" id="hvi-nem-rust">
-              <input class="field-value" id="hvi-nem-rust-val" value="3,0 %" onchange="syncFromInput(this)" />
+              <input type="range" min="0" max="10" step="0.5" value="3" oninput="sliderChanged(this,'hvi-nem-rust-val')" id="hvi-nem-rust">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hvi-nem-rust-val" value="3" step="0.5" min="0" onchange="numChanged(this,'hvi-nem-rust')" oninput="numChanged(this,'hvi-nem-rust')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Roční výnos investice (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="15" step="0.5" value="7" oninput="updateHypVsInv()" id="hvi-inv-rust">
-              <input class="field-value" id="hvi-inv-rust-val" value="7,0 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="15" step="0.5" value="7" oninput="sliderChanged(this,'hvi-inv-rust-val')" id="hvi-inv-rust">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hvi-inv-rust-val" value="7" step="0.5" min="1" onchange="numChanged(this,'hvi-inv-rust')" oninput="numChanged(this,'hvi-inv-rust')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Měsíční nájem (alternativa)</label>
             <div class="field-row">
-              <input type="range" min="5000" max="50000" step="500" value="18000" oninput="updateHypVsInv()" id="hvi-najem">
-              <input class="field-value" id="hvi-najem-val" value="18 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="5000" max="50000" step="500" value="18000" oninput="sliderChanged(this,'hvi-najem-val')" id="hvi-najem">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hvi-najem-val" value="18000" step="500" min="5000" onchange="numChanged(this,'hvi-najem')" oninput="numChanged(this,'hvi-najem')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Horizont (let)</label>
             <div class="field-row">
-              <input type="range" min="5" max="30" step="1" value="20" oninput="updateHypVsInv()" id="hvi-roky">
-              <input class="field-value" id="hvi-roky-val" value="20 let" onchange="syncFromInput(this)" />
+              <input type="range" min="5" max="30" step="1" value="20" oninput="sliderChanged(this,'hvi-roky-val')" id="hvi-roky">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="hvi-roky-val" value="20" step="1" min="5" onchange="numChanged(this,'hvi-roky')" oninput="numChanged(this,'hvi-roky')">
+              <span class="field-unit">let</span>
             </div>
           </div>
         </div>
@@ -576,36 +643,51 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
           <div class="field">
             <label>Kupní cena nemovitosti</label>
             <div class="field-row">
-              <input type="range" min="1000000" max="20000000" step="100000" value="6000000" oninput="updateBohatstvi()" id="boh-cena">
-              <input class="field-value" id="boh-cena-val" value="6 000 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="1000000" max="20000000" step="100000" value="6000000" oninput="sliderChanged(this,'boh-cena-val')" id="boh-cena">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="boh-cena-val" value="6000000" step="100000" min="1000000" onchange="numChanged(this,'boh-cena')" oninput="numChanged(this,'boh-cena')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Vlastní kapitál (záloha)</label>
             <div class="field-row">
-              <input type="range" min="100000" max="5000000" step="100000" value="1200000" oninput="updateBohatstvi()" id="boh-zaloh">
-              <input class="field-value" id="boh-zaloh-val" value="1 200 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="100000" max="5000000" step="100000" value="1200000" oninput="sliderChanged(this,'boh-zaloh-val')" id="boh-zaloh">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="boh-zaloh-val" value="1200000" step="100000" min="100000" onchange="numChanged(this,'boh-zaloh')" oninput="numChanged(this,'boh-zaloh')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Úroková sazba (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="updateBohatstvi()" id="boh-sazba">
-              <input class="field-value" id="boh-sazba-val" value="4,5 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="sliderChanged(this,'boh-sazba-val')" id="boh-sazba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="boh-sazba-val" value="4.5" step="0.1" min="1" onchange="numChanged(this,'boh-sazba')" oninput="numChanged(this,'boh-sazba')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Doba splatnosti (let)</label>
             <div class="field-row">
-              <input type="range" min="5" max="30" step="1" value="25" oninput="updateBohatstvi()" id="boh-doba">
-              <input class="field-value" id="boh-doba-val" value="25 let" onchange="syncFromInput(this)" />
+              <input type="range" min="5" max="30" step="1" value="25" oninput="sliderChanged(this,'boh-doba-val')" id="boh-doba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="boh-doba-val" value="25" step="1" min="5" onchange="numChanged(this,'boh-doba')" oninput="numChanged(this,'boh-doba')">
+              <span class="field-unit">let</span>
             </div>
           </div>
           <div class="field">
             <label>Roční růst ceny nemovitosti (%)</label>
             <div class="field-row">
-              <input type="range" min="0" max="10" step="0.5" value="3" oninput="updateBohatstvi()" id="boh-rust">
-              <input class="field-value" id="boh-rust-val" value="3,0 %" onchange="syncFromInput(this)" />
+              <input type="range" min="0" max="10" step="0.5" value="3" oninput="sliderChanged(this,'boh-rust-val')" id="boh-rust">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="boh-rust-val" value="3" step="0.5" min="0" onchange="numChanged(this,'boh-rust')" oninput="numChanged(this,'boh-rust')">
+              <span class="field-unit">%</span>
             </div>
           </div>
         </div>
@@ -649,43 +731,61 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
           <div class="field">
             <label>Kupní cena nemovitosti</label>
             <div class="field-row">
-              <input type="range" min="1000000" max="15000000" step="100000" value="4000000" oninput="updateInvNem()" id="in-cena">
-              <input class="field-value" id="in-cena-val" value="4 000 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="1000000" max="15000000" step="100000" value="4000000" oninput="sliderChanged(this,'in-cena-val')" id="in-cena">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="in-cena-val" value="4000000" step="100000" min="1000000" onchange="numChanged(this,'in-cena')" oninput="numChanged(this,'in-cena')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Vlastní kapitál</label>
             <div class="field-row">
-              <input type="range" min="200000" max="5000000" step="100000" value="800000" oninput="updateInvNem()" id="in-kapital">
-              <input class="field-value" id="in-kapital-val" value="800 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="200000" max="5000000" step="100000" value="800000" oninput="sliderChanged(this,'in-kapital-val')" id="in-kapital">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="in-kapital-val" value="800000" step="100000" min="200000" onchange="numChanged(this,'in-kapital')" oninput="numChanged(this,'in-kapital')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Úroková sazba (%)</label>
             <div class="field-row">
-              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="updateInvNem()" id="in-sazba">
-              <input class="field-value" id="in-sazba-val" value="4,5 %" onchange="syncFromInput(this)" />
+              <input type="range" min="1" max="10" step="0.1" value="4.5" oninput="sliderChanged(this,'in-sazba-val')" id="in-sazba">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="in-sazba-val" value="4.5" step="0.1" min="1" onchange="numChanged(this,'in-sazba')" oninput="numChanged(this,'in-sazba')">
+              <span class="field-unit">%</span>
             </div>
           </div>
           <div class="field">
             <label>Měsíční nájem (příjem)</label>
             <div class="field-row">
-              <input type="range" min="5000" max="60000" step="500" value="18000" oninput="updateInvNem()" id="in-najem">
-              <input class="field-value" id="in-najem-val" value="18 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="5000" max="60000" step="500" value="18000" oninput="sliderChanged(this,'in-najem-val')" id="in-najem">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="in-najem-val" value="18000" step="500" min="5000" onchange="numChanged(this,'in-najem')" oninput="numChanged(this,'in-najem')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Měsíční náklady (správa, pojištění...)</label>
             <div class="field-row">
-              <input type="range" min="500" max="10000" step="500" value="2000" oninput="updateInvNem()" id="in-naklady">
-              <input class="field-value" id="in-naklady-val" value="2 000 Kč" onchange="syncFromInput(this)" />
+              <input type="range" min="500" max="10000" step="500" value="2000" oninput="sliderChanged(this,'in-naklady-val')" id="in-naklady">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="in-naklady-val" value="2000" step="500" min="500" onchange="numChanged(this,'in-naklady')" oninput="numChanged(this,'in-naklady')">
+              <span class="field-unit">Kč</span>
             </div>
           </div>
           <div class="field">
             <label>Roční růst nájmu (%)</label>
             <div class="field-row">
-              <input type="range" min="0" max="10" step="0.5" value="3" oninput="updateInvNem()" id="in-najem-rust">
-              <input class="field-value" id="in-najem-rust-val" value="3,0 %" onchange="syncFromInput(this)" />
+              <input type="range" min="0" max="10" step="0.5" value="3" oninput="sliderChanged(this,'in-najem-rust-val')" id="in-najem-rust">
+            </div>
+            <div class="field-num-row">
+              <input class="field-num" type="number" id="in-najem-rust-val" value="3" step="0.5" min="0" onchange="numChanged(this,'in-najem-rust')" oninput="numChanged(this,'in-najem-rust')">
+              <span class="field-unit">%</span>
             </div>
           </div>
         </div>
@@ -798,6 +898,66 @@ function syncFromInput(inputEl) {
       break;
     }
   }
+}
+
+
+// Slider → number input sync
+function syncSlider(slider, numId) {
+  const numEl = document.getElementById(numId);
+  if (!numEl) return;
+  numEl.value = slider.value;
+  // trigger correct calc
+  triggerCalc(numId);
+}
+
+// Number input → slider sync  
+function syncNum(numEl, sliderId) {
+  const slider = document.getElementById(sliderId);
+  if (!slider) return;
+  const v = parseFloat(numEl.value);
+  if (isNaN(v)) return;
+  // expand slider range if needed
+  if (v > parseFloat(slider.max)) slider.max = Math.ceil(v * 1.5);
+  if (v < parseFloat(slider.min) && v >= 0) slider.min = Math.max(0, v * 0.5);
+  slider.value = v;
+  triggerCalc(numEl.id);
+}
+
+function triggerCalc(id) {
+  if (id.startsWith('inf-')) updateInflace();
+  else if (id.startsWith('hyp-')) updateHypoteka();
+  else if (id.startsWith('jis-')) updateJistina();
+  else if (id.startsWith('inv-')) updateInvestice();
+  else if (id.startsWith('hvi-')) updateHypVsInv();
+  else if (id.startsWith('boh-')) updateBohatstvi();
+  else if (id.startsWith('in-')) updateInvNem();
+}
+
+
+function sliderChanged(slider, valId) {
+  const numEl = document.getElementById(valId);
+  if (numEl) numEl.value = slider.value;
+  triggerCalc(valId);
+}
+
+function numChanged(numEl, sliderId) {
+  const v = parseFloat(numEl.value);
+  if (isNaN(v)) return;
+  const slider = document.getElementById(sliderId);
+  if (!slider) return;
+  if (v > parseFloat(slider.max)) slider.max = Math.ceil(v * 2);
+  slider.value = v;
+  triggerCalc(numEl.id);
+}
+
+function triggerCalc(id) {
+  if (id.startsWith('inf-')) updateInflace();
+  else if (id.startsWith('hyp-')) updateHypoteka();
+  else if (id.startsWith('jis-')) updateJistina();
+  else if (id.startsWith('inv-')) updateInvestice();
+  else if (id.startsWith('hvi-')) updateHypVsInv();
+  else if (id.startsWith('boh-')) updateBohatstvi();
+  else if (id.startsWith('in-')) updateInvNem();
 }
 
 // HELPERS
