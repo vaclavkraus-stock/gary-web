@@ -244,10 +244,23 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.05);padding:
   .stat-num{font-size:2.5rem}
   .sec-title{font-size:1.8rem}
 }
+
+/* POLISH */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.35}
+.nav-links a{position:relative;padding-bottom:2px}
+.nav-links a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width .25s}
+.nav-links a:hover::after{width:100%}
+.svc:hover{box-shadow:0 8px 32px rgba(27,42,30,.15)}
+.ref-card{position:relative}
+.ref-card::before{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--gold);transition:width .4s}
+.ref-card:hover::before{width:100%}
+.proc-step{overflow:hidden}
+.scroll-indicator{position:fixed;top:0;left:0;height:2px;background:linear-gradient(to right,var(--gold),var(--forest));z-index:200;transition:width .1s linear;width:0}
 </style>
 </head>
 <body>
 
+<div class="scroll-indicator" id="scrollInd"></div>
 <nav id="nav">
   <a href="index.html" class="nav-logo">Ing. Gary <span>Nguyen</span></a>
   <ul class="nav-links">
@@ -311,28 +324,19 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.05);padding:
 </div>
 
 <!-- O MNE -->
-<div class="about" id="o-mne">
-  <div class="about-img rl">
-    <img class="about-photo"
-      src="https://images.squarespace-cdn.com/content/v1/68a973ff36b9310ba1a72ba8/0cabc20f-9582-444d-a5f3-56060579f1de/8F21ABE4-C791-4AD5-B7F8-83491BE16089.jpeg"
-      alt="Ing. Gary Nguyen"
-      onerror="this.style.display='none';this.parentElement.querySelector('.about-fallback').style.display='flex'">
-    <div class="about-fallback" style="display:none">
-      <div style="font-family:'Playfair Display',serif;font-size:6rem;color:transparent;-webkit-text-stroke:1px rgba(138,106,48,.25)">GN</div>
+<section id="o-mne" style="background:var(--parchment-2);padding:5.5rem 3rem">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;max-width:1200px">
+    <div class="rl">
+      <div class="eyebrow">Něco málo o mně</div>
+      <h2 class="sec-title" style="margin-bottom:1.5rem">Zakládám si na tvrdé<br>práci a <em>poctivosti</em></h2>
+      <span style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;font-style:italic;color:var(--gold);display:block;margin-top:1rem">Gary Nguyen</span>
+      <a href="#kontakt" class="btn-dark" style="margin-top:2rem;display:inline-block">Domluvit schůzku</a>
     </div>
-    <div class="about-badge">
-      <strong>Ing. Gary Nguyen</strong>
-      <span>Manažer · Investiční, realitní a hypoteční specialista</span>
+    <div class="rr" style="border-left:1px solid var(--line);padding-left:5rem">
+      <p style="font-size:1.05rem;color:var(--muted);line-height:1.95">Jsem člověk, který si zakládá na tvrdé práci a poctivosti. Stejně tak přistupuji i ke své profesi — ke každému klientovi se snažím přistupovat individuálně a vždy hledám to nejlepší možné řešení v každé situaci.</p>
     </div>
   </div>
-  <div class="about-content rr">
-    <div class="eyebrow">Něco málo o mně</div>
-    <h2 class="about-title">Zakládám si na tvrdé<br>práci a <em>poctivosti</em></h2>
-    <p class="about-body">Jsem člověk, který si zakládá na tvrdé práci a poctivosti. Stejně tak přistupuji i ke své profesi — ke každému klientovi se snažím přistupovat individuálně a vždy hledám to nejlepší možné řešení v každé situaci.</p>
-    <span class="about-sig">Gary Nguyen</span>
-    <a href="#kontakt" class="btn-dark" style="margin-top:2rem;display:inline-block">Domluvit schůzku</a>
-  </div>
-</div>
+</section>
 
 <!-- SLUZBY -->
 <section class="services sec" id="sluzby">
@@ -542,6 +546,13 @@ const sio=new IntersectionObserver(e=>{e.forEach(x=>{
 })},{threshold:.3});
 const sb=document.querySelector('.stats');
 if(sb)sio.observe(sb);
+
+// Scroll progress indicator
+window.addEventListener('scroll', () => {
+  const winH = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = winH > 0 ? (scrollY / winH * 100) : 0;
+  document.getElementById('scrollInd').style.width = pct + '%';
+});
 </script>
 </body>
 </html>

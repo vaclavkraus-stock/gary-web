@@ -117,6 +117,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
   .mobile-menu-btn{display:flex}
 }
 .mobile-menu-btn{display:none;align-items:center;gap:.6rem;background:var(--forest);border:none;color:var(--parchment);font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;padding:.5rem 1rem;cursor:pointer;margin-bottom:1.5rem;font-weight:300}
+
+/* DISCLAIMER MODAL */
+.disclaimer-overlay{position:fixed;inset:0;background:rgba(15,14,9,.75);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.disclaimer-modal{background:var(--parchment);max-width:580px;width:100%;padding:3rem;position:relative;border-top:3px solid var(--gold)}
+.disclaimer-modal h2{font-family:var(--serif);font-size:1.6rem;font-weight:400;color:var(--ink);margin-bottom:.3rem}
+.disclaimer-modal .disc-sub{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:2rem;display:block}
+.disclaimer-modal h3{font-family:var(--sans);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--forest);font-weight:600;margin:1.2rem 0 .5rem}
+.disclaimer-modal p{font-size:.9rem;color:var(--muted);line-height:1.85;margin-bottom:.8rem}
+.disclaimer-warning{background:var(--forest);border-left:3px solid var(--gold);padding:1rem 1.2rem;margin:1.5rem 0}
+.disclaimer-warning p{color:rgba(246,240,228,.75);font-size:.88rem;margin:0;font-style:italic}
+.disclaimer-btn{width:100%;padding:1rem;background:var(--forest);color:var(--parchment);font-family:var(--sans);font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;margin-top:.5rem;transition:background .2s;font-weight:500}
+.disclaimer-btn:hover{background:var(--gold)}
+.disclaimer-close{position:absolute;top:1.2rem;right:1.5rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);transition:color .2s;line-height:1}
+.disclaimer-close:hover{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -987,6 +1001,35 @@ window.addEventListener('load',()=>{
   updateInflace();
   setTimeout(()=>{updateHypoteka();updateJistina();updateInvestice();updateHypVsInv();updateBohatstvi();updateInvNem();},100);
 });
+</script>
+
+<!-- DISCLAIMER MODAL -->
+<div class="disclaimer-overlay" id="disclaimerOverlay">
+  <div class="disclaimer-modal">
+    <button class="disclaimer-close" onclick="closeDisclaimer()">✕</button>
+    <h2>Právní doložka</h2>
+    <span class="disc-sub">Finanční modely a analýzy</span>
+    <p>Tento orientační výstup je softwarově zpracovaným, typizovaným porovnáním, které vychází z informací poskytnutých uživatelem a z předpokládaného vývoje trhu.</p>
+    <p><strong style="color:var(--ink);font-weight:500">Nepředstavuje závaznou nabídku, poradenství ani investiční doporučení</strong> ze strany společnosti Broker Consulting, a.s.</p>
+    <h3>Specifika výpočtů</h3>
+    <p>Výpočty vycházejí z předpokladů, které se mohou v čase měnit. Model nemůže plně zahrnout budoucí skutečnosti jako reálnou obsazenost, vývoj sazeb po skončení fixace, změny daní nebo neočekávané náklady.</p>
+    <p>Údaje jsou pouze orientační a nezaručují zhodnocení vložených prostředků. Předchozí ani očekávaná výkonnost není zárukou skutečné výkonnosti v budoucnu.</p>
+    <div class="disclaimer-warning">
+      <p>⚠ Varování: Návratnost investice není vždy jistá, každá investice obnáší riziko. Vysoký výnos představuje vyšší riziko.</p>
+    </div>
+    <button class="disclaimer-btn" onclick="closeDisclaimer()">Rozumím a pokračovat</button>
+  </div>
+</div>
+
+<script>
+function closeDisclaimer(){
+  const el=document.getElementById('disclaimerOverlay');
+  el.style.opacity='0';
+  el.style.transition='opacity .4s';
+  setTimeout(()=>el.style.display='none',400);
+  try{sessionStorage.setItem('disc_accepted','1')}catch(e){}
+}
+try{if(sessionStorage.getItem('disc_accepted')==='1')document.getElementById('disclaimerOverlay').style.display='none'}catch(e){}
 </script>
 </body>
 </html>
