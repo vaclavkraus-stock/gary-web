@@ -348,19 +348,28 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </div>
 
 <!-- O MNE -->
-<section id="o-mne" style="background:var(--parchment-2);padding:5.5rem 3rem">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;max-width:1200px">
-    <div class="rl">
-      <div class="eyebrow">Něco málo o mně</div>
-      <h2 class="sec-title" style="margin-bottom:1.5rem">Zakládám si na tvrdé<br>práci a <em>poctivosti</em></h2>
-      <span style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;font-style:italic;color:var(--gold);display:block;margin-top:1rem">Gary Nguyen</span>
-      <a href="#kontakt" class="btn-dark" style="margin-top:2rem;display:inline-block">Domluvit schůzku</a>
+<div class="about" id="o-mne">
+  <div class="about-img rl">
+    <img class="about-photo"
+      src="gary-3.jpg"
+      alt="Ing. Gary Nguyen"
+      onerror="this.style.display='none';this.parentElement.querySelector('.about-fallback').style.display='flex'">
+    <div class="about-fallback" style="display:none;width:100%;min-height:520px;align-items:center;justify-content:center;background:var(--parchment-3)">
+      <div style="font-family:'Playfair Display',serif;font-size:6rem;color:transparent;-webkit-text-stroke:1px rgba(138,106,48,.25)">GN</div>
     </div>
-    <div class="rr" style="border-left:1px solid var(--line);padding-left:5rem">
-      <p style="font-size:1.05rem;color:var(--muted);line-height:1.95">Jsem člověk, který si zakládá na tvrdé práci a poctivosti. Stejně tak přistupuji i ke své profesi — ke každému klientovi se snažím přistupovat individuálně a vždy hledám to nejlepší možné řešení v každé situaci.</p>
+    <div class="about-badge">
+      <strong>Ing. Gary Nguyen</strong>
+      <span>Manažer · Investiční, realitní a hypoteční specialista</span>
     </div>
   </div>
-</section>
+  <div class="about-content rr">
+    <div class="eyebrow">Něco málo o mně</div>
+    <h2 class="about-title">Zakládám si na tvrdé<br>práci a <em>poctivosti</em></h2>
+    <p class="about-body">Jsem člověk, který si zakládá na tvrdé práci a poctivosti. Stejně tak přistupuji i ke své profesi — ke každému klientovi se snažím přistupovat individuálně a vždy hledám to nejlepší možné řešení v každé situaci.</p>
+    <span class="about-sig">Gary Nguyen</span>
+    <a href="#kontakt" class="btn-dark" style="margin-top:2rem;display:inline-block">Domluvit schůzku</a>
+  </div>
+</div>
 
 <!-- SLUZBY -->
 <section class="services sec" id="sluzby">
