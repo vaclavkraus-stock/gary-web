@@ -135,8 +135,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
   .sidebar{width:85vw}
   .disclaimer-modal{padding:1.8rem 1.2rem}
 }
-.mobile-menu-btn{display:none;align-items:center;justify-content:center;gap:.8rem;background:var(--forest);border:none;color:var(--parchment);font-family:var(--sans);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;margin-bottom:1.5rem;font-weight:400;width:100%;-webkit-tap-highlight-color:transparent;border-bottom:2px solid rgba(154,123,53,.4)}
-.mobile-menu-btn:active{background:var(--gold)}
+.mobile-menu-btn{display:none}
 
 /* DISCLAIMER MODAL */
 .disclaimer-overlay{position:fixed;inset:0;background:rgba(15,14,9,.78);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;overflow-y:auto}
@@ -158,6 +157,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;padding:1.1rem 2.5rem;displa
 .ce-item strong{color:var(--ink);font-weight:500}
 .ce-dot{width:14px;height:14px;border-radius:2px;flex-shrink:0;margin-top:2px}
 .ce-tip{font-size:.9rem;flex-shrink:0;margin-top:1px}
+
+/* MOBILE CALC PICKER BAR */
+.mob-calc-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:160;background:var(--forest);border-top:2px solid var(--gold);padding:.9rem 1.2rem;align-items:center;justify-content:space-between;gap:1rem}
+.mob-calc-bar-label{font-family:var(--sans);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(246,240,228,.5);font-weight:300}
+.mob-calc-bar-current{font-family:var(--sans);font-size:.88rem;color:var(--parchment);font-weight:400;flex:1}
+.mob-calc-bar-btn{background:rgba(154,123,53,.3);border:1px solid var(--gold);color:var(--gold-pale);font-family:var(--sans);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:.5rem 1rem;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.mob-calc-bar-btn:active{background:var(--gold);color:var(--forest)}
+@media(max-width:900px){
+  .mob-calc-bar{display:flex}
+  .main{padding-bottom:5rem!important}
+}
 </style>
 </head>
 <body>
@@ -839,6 +849,10 @@ function showCalc(id){
   document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('calc-'+id).classList.add('active');
   event.currentTarget.classList.add('active');
+  // Update mobile bar
+  const nameEl = event.currentTarget.querySelector('.sidebar-name');
+  const mobLabel = document.getElementById('mobCalcCurrent');
+  if(nameEl && mobLabel) mobLabel.textContent = nameEl.textContent;
   closeSidebar();
   // trigger update
   const fns={inflace:updateInflace,hypoteka:updateHypoteka,jistina:updateJistina,investice:updateInvestice,'hyp-vs-inv':updateHypVsInv,bohatstvi:updateBohatstvi,'inv-nemovitost':updateInvNem};
@@ -1211,5 +1225,14 @@ document.querySelectorAll('.sidebar-btn').forEach(el => {
 });
 
 </script>
+
+<!-- MOBILE CALC PICKER BAR -->
+<div class="mob-calc-bar" id="mobCalcBar">
+  <div>
+    <div class="mob-calc-bar-label">Kalkulačka</div>
+    <div class="mob-calc-bar-current" id="mobCalcCurrent">Vliv inflace</div>
+  </div>
+  <button class="mob-calc-bar-btn" onclick="toggleSidebar()">☰ Změnit</button>
+</div>
 </body>
 </html>
